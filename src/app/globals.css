@@ -1,38 +1,63 @@
 @import "tailwindcss";
 
 /*
- * Design tokens — Clean Professional (white + royal blue).
- * Royal #2563EB · Navy #172554 · Ink #0F172A · Slate #64748B
- * White #FFFFFF · Off-white #F8FAFC
+ * ROYAL BLUE LUXURY & EDITORIAL AGENCY DESIGN TOKENS
+ *
+ * Midnight Navy:   #0B1428
+ * Royal Blue:      #142B50
+ * Deep Blue:       #1D3F70
+ * Champagne Gold:  #C5A46D
+ * Gold Light:      #DFCA9F
+ * Gold Dark:       #9A7B45
+ * Silver White:    #E8EDF5
+ * Soft Grey:       #AAB5C5
+ * Luxury Cream:    #F6F3EE
+ * Card Light:      #FFFFFF
  */
-@theme {
-  --color-royal-50: #eff6ff;
-  --color-royal-100: #dbeafe;
-  --color-royal-200: #bfdbfe;
-  --color-royal: #2563eb;
-  --color-royal-700: #1d4ed8;
-  --color-navy: #172554;
-  --color-ink: #0f172a;
-  --color-muted: #64748b;
-  --color-mist: #f8fafc;
-  --color-line: #e2e8f0;
-  /* Semantic tokens: use these in components instead of raw palette values. */
-  --color-surface: #ffffff; /* page / section background */
-  --color-card: #ffffff; /* raised cards, inputs, chips */
-  --color-heading: #172554; /* headings and strong text */
-  --color-accent: #2563eb; /* royal-blue text and icons */
 
+@theme {
+  --color-midnight: #0b1428;
+  --color-royal-dark: #142b50;
+  --color-royal-deep: #1d3f70;
+  --color-royal: #2563eb;
+  --color-gold: #c5a46d;
+  --color-gold-light: #dfca9f;
+  --color-gold-dark: #9a7b45;
+  --color-silver: #e8edf5;
+  --color-soft-grey: #aab5c5;
+  --color-cream: #f6f3ee;
+  --color-cream-card: #fdfbf7;
+
+  /* Semantic tokens */
+  --color-surface: #f6f3ee;
+  --color-card: #ffffff;
+  --color-card-dark: #142b50;
+  --color-heading: #0b1428;
+  --color-heading-dark: #e8edf5;
+  --color-ink: #142b50;
+  --color-muted: #64748b;
+  --color-muted-dark: #aab5c5;
+  --color-mist: #ece8df;
+  --color-line: rgba(197, 164, 109, 0.28);
+  --color-line-subtle: #e2ddd3;
+  --color-accent: #c5a46d;
+
+  --font-serif: var(--font-serif), "Cormorant Garamond", Georgia, serif;
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
 
   --shadow-card:
-    0 1px 2px rgb(15 23 42 / 0.04), 0 10px 30px -14px rgb(15 23 42 / 0.12);
+    0 2px 4px rgba(11, 20, 40, 0.04),
+    0 12px 32px -10px rgba(11, 20, 40, 0.08);
   --shadow-lift:
-    0 2px 4px rgb(15 23 42 / 0.04), 0 22px 44px -18px rgb(37 99 235 / 0.28);
+    0 4px 8px rgba(11, 20, 40, 0.06),
+    0 24px 48px -12px rgba(20, 43, 80, 0.18);
+  --shadow-gold:
+    0 0 25px -5px rgba(197, 164, 109, 0.35);
 
   --animate-float: float 7s ease-in-out infinite;
-  --animate-float-slow: float 9s ease-in-out infinite reverse;
-  --animate-menu-in: menu-in 180ms ease-out;
+  --animate-float-slow: float 10s ease-in-out infinite reverse;
+  --animate-gold-pulse: gold-pulse 3s ease-in-out infinite;
 
   @keyframes float {
     0%,
@@ -40,27 +65,25 @@
       transform: translateY(0);
     }
     50% {
-      transform: translateY(-10px);
+      transform: translateY(-8px);
     }
   }
-  @keyframes menu-in {
-    from {
-      opacity: 0;
-      transform: translateY(-6px);
+
+  @keyframes gold-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(197, 164, 109, 0.4);
     }
-    to {
-      opacity: 1;
-      transform: translateY(0);
+    50% {
+      box-shadow: 0 0 0 8px rgba(197, 164, 109, 0);
     }
   }
 }
 
 html {
-  /* The site is light-only; stops the scrollbar and form controls following a dark OS setting. */
   color-scheme: light;
   scroll-behavior: smooth;
-  /* Keeps anchored sections clear of the sticky navbar. */
-  scroll-padding-top: 4.5rem;
+  scroll-padding-top: 5.5rem;
 }
 
 body {
@@ -69,106 +92,68 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
 }
 
 ::selection {
-  background: var(--color-royal-200);
-  color: var(--color-navy);
+  background: #c5a46d;
+  color: #0b1428;
 }
 
-:root {
-  --shimmer-base: #1e3a8a;
-  --shimmer-band: #3b82f6;
-  --graph-0: #e8eef8;
-  --graph-1: #bfdbfe;
-  --graph-2: #60a5fa;
-  --graph-3: #2563eb;
-  --graph-4: #172554;
-  --lang-0: #2563eb;
-  --lang-1: #172554;
-  --lang-2: #60a5fa;
-  --lang-3: #94a3b8;
-  --lang-4: #1e40af;
-  --lang-5: #93c5fd;
+/* Editorial Serif Headings */
+.font-editorial {
+  font-family: var(--font-serif);
+  letter-spacing: -0.015em;
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-royal);
-  outline-offset: 3px;
-  border-radius: 6px;
-}
-
-/* Role text: a brighter band sweeps across it, like a moving highlight. */
-.text-shimmer {
-  background-image: linear-gradient(
-    100deg,
-    var(--shimmer-base) 0%,
-    var(--shimmer-base) 38%,
-    var(--shimmer-band) 50%,
-    var(--shimmer-base) 62%,
-    var(--shimmer-base) 100%
-  );
-  background-size: 250% 100%;
-  background-clip: text;
+/* Gold Gradient Text */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #dfca9f 0%, #c5a46d 50%, #9a7b45 100%);
   -webkit-background-clip: text;
-  color: transparent;
-  animation: text-shimmer 3.2s linear infinite;
-}
-@keyframes text-shimmer {
-  from {
-    background-position: 100% 0;
-  }
-  to {
-    background-position: -100% 0;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .text-shimmer {
-    animation: none;
-    background-position: 0 0;
-  }
+  -webkit-text-fill-color: transparent;
 }
 
-/* Subtle engineering-paper texture used behind the hero. */
-.bg-grid {
-  background-image:
-    linear-gradient(to right, rgb(148 163 184 / 0.14) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(148 163 184 / 0.14) 1px, transparent 1px);
-  background-size: 44px 44px;
-  mask-image: radial-gradient(ellipse 75% 70% at 50% 40%, #000 35%, transparent 100%);
+/* Royal Luxury Gradient Text */
+.text-royal-gradient {
+  background: linear-gradient(135deg, #0b1428 0%, #142b50 60%, #1d3f70 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/*
- * Start states for the GSAP hero entrance (components/effects/HeroIntro.tsx).
- * Hidden only when motion is allowed, so reduced-motion visitors see everything
- * immediately. The failsafe animation reveals the content after 5s even if
- * JavaScript never starts the timeline, so the hero can never stay invisible.
- */
-@media (prefers-reduced-motion: no-preference) {
-  [data-hero-greet],
-  [data-hero-item],
-  [data-hero-frame],
-  [data-hero-pop],
-  [data-hero-card] {
-    opacity: 0;
-  }
-  [data-hero-word] {
-    transform: translateY(115%);
-  }
-  [data-hero-greet],
-  [data-hero-item],
-  [data-hero-frame],
-  [data-hero-pop],
-  [data-hero-card],
-  [data-hero-word] {
-    animation: hero-failsafe 0.01s 5s forwards;
-  }
-  @keyframes hero-failsafe {
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
+/* Subtle luxury grain / pattern */
+.bg-luxury-pattern {
+  background-image: radial-gradient(rgba(197, 164, 109, 0.15) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Glassmorphism panel */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(197, 164, 109, 0.25);
+}
+
+.glass-panel-dark {
+  background: rgba(20, 43, 80, 0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(197, 164, 109, 0.3);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f6f3ee;
+}
+::-webkit-scrollbar-thumb {
+  background: #c5a46d;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9a7b45;
 }
 
 @media (prefers-reduced-motion: reduce) {

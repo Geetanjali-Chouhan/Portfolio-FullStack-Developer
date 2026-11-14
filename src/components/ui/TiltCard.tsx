@@ -15,7 +15,7 @@ export function TiltCard({
   children,
   className,
   containerClassName,
-  maxTilt = 9,
+  maxTilt = 8,
   scale = 1.02,
 }: TiltCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -39,7 +39,7 @@ export function TiltCard({
       const xPercent = (x / rect.width) * 100;
       const yPercent = (y / rect.height) * 100;
 
-      // Calculate tilt angles based on mouse offset from center
+      // Calculate smooth tilt angles
       const rotateX = ((rect.height / 2 - y) / (rect.height / 2)) * maxTilt;
       const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * maxTilt;
 
@@ -49,7 +49,7 @@ export function TiltCard({
       setGlare({
         x: xPercent,
         y: yPercent,
-        opacity: 0.16,
+        opacity: 0.18,
       });
     },
     [maxTilt, scale]
@@ -83,17 +83,17 @@ export function TiltCard({
             : "transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)",
         }}
         className={cn(
-          "relative h-full rounded-2xl border border-line bg-card shadow-card transition-shadow duration-300 hover:border-royal-300 hover:shadow-lift will-change-transform",
+          "relative h-full rounded-3xl border transition-all duration-300 will-change-transform",
           className
         )}
       >
-        {/* Dynamic glare light reflection that tracks mouse position */}
+        {/* Dynamic subtle golden glare light reflection */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 z-20 rounded-2xl transition-opacity duration-300"
+          className="pointer-events-none absolute inset-0 z-20 rounded-3xl transition-opacity duration-300"
           style={{
             opacity: glare.opacity,
-            background: `radial-gradient(circle 360px at ${glare.x}% ${glare.y}%, rgba(59, 130, 246, 0.25), rgba(255, 255, 255, 0.15) 30%, transparent 75%)`,
+            background: `radial-gradient(circle 380px at ${glare.x}% ${glare.y}%, rgba(197, 164, 109, 0.25), rgba(255, 255, 255, 0.15) 30%, transparent 75%)`,
           }}
         />
 
@@ -102,4 +102,3 @@ export function TiltCard({
     </div>
   );
 }
-

@@ -3,17 +3,8 @@
 import { useEffect, useRef } from "react";
 import { gsap, MOTION_OK } from "@/lib/gsap";
 
-/**
- * The short blue underline under every section title. It draws itself in (GSAP)
- * when scrolled into view.
- *
- * It animates only its own element, after this component has hydrated. The
- * GitHub section sits inside a <Suspense> boundary that React hydrates lazily,
- * so a global effect that styled this element earlier would cause a hydration
- * mismatch ("attributes of the server rendered HTML didn't match").
- */
 export function AccentBar() {
-  const ref = useRef<HTMLSpanElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = ref.current;
@@ -23,10 +14,11 @@ export function AccentBar() {
     mm.add(MOTION_OK, () => {
       gsap.fromTo(
         el,
-        { scaleX: 0 },
+        { scaleX: 0, opacity: 0 },
         {
           scaleX: 1,
-          duration: 0.8,
+          opacity: 1,
+          duration: 0.9,
           ease: "power3.out",
           clearProps: "all",
           scrollTrigger: { trigger: el, start: "top 92%", once: true },
@@ -37,5 +29,11 @@ export function AccentBar() {
     return () => mm.revert();
   }, []);
 
-  return <span ref={ref} aria-hidden className="mx-auto mt-4 block h-1 w-12 rounded-full bg-royal" />;
+  return (
+    <div ref={ref} aria-hidden className="mx-auto mt-4 flex items-center justify-center gap-2">
+      <span className="h-px w-10 bg-linear-to-r from-transparent to-[#C5A46D]" />
+      <span className="size-1.5 rotate-45 rounded-xs bg-[#C5A46D] shadow-[0_0_8px_#C5A46D]" />
+      <span className="h-px w-10 bg-linear-to-l from-transparent to-[#C5A46D]" />
+    </div>
+  );
 }

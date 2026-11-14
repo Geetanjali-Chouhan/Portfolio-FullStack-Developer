@@ -1,19 +1,9 @@
 "use client";
 
 import { m, type Variants } from "framer-motion";
-import { Download } from "lucide-react";
+import { Download, Sparkles } from "lucide-react";
 import { site } from "@/data/site";
 import { cn } from "@/lib/cn";
-
-/*
- * Dark royal blue button. Mouse hover and keyboard focus swap the label to
- * "Click on Me!", bounce the icon, brighten the gradient and add a glow. Touch
- * devices never get hover, so they see the default label with a tap squash.
- * MotionProvider's reducedMotion="user" drops the movement (scale / bounce /
- * slide) for visitors who ask for it, leaving only the fades.
- *
- * Palette: #142B65 deep · #1E40AF mid · #3B82F6 accent.
- */
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -21,40 +11,26 @@ const button: Variants = {
   rest: {
     scale: 1,
     y: 0,
-    boxShadow: "0 8px 18px -8px rgba(20,43,101,0.55), 0 0 0 0 rgba(59,130,246,0)",
+    boxShadow: "0 8px 20px -8px rgba(197, 164, 109, 0.5), 0 0 0 0 rgba(197, 164, 109, 0)",
     transition: { duration: 0.35, ease },
   },
   hover: {
-    scale: 1.05,
+    scale: 1.04,
     y: -2,
-    boxShadow: "0 16px 32px -10px rgba(30,64,175,0.7), 0 0 28px 2px rgba(59,130,246,0.45)",
+    boxShadow: "0 16px 32px -10px rgba(197, 164, 109, 0.7), 0 0 24px 2px rgba(223, 202, 159, 0.5)",
     transition: { duration: 0.35, ease },
   },
   tap: {
-    scale: 0.95,
+    scale: 0.96,
     y: 0,
-    boxShadow: "0 4px 10px -6px rgba(20,43,101,0.6), 0 0 16px 0 rgba(59,130,246,0.35)",
+    boxShadow: "0 4px 10px -6px rgba(197, 164, 109, 0.6)",
     transition: { duration: 0.12 },
   },
-};
-
-// The brighter gradient sits on top and fades in, because CSS gradients can't be tweened directly.
-const brightLayer: Variants = {
-  rest: { opacity: 0, transition: { duration: 0.35 } },
-  hover: { opacity: 1, transition: { duration: 0.35 } },
 };
 
 const shine: Variants = {
   rest: { x: "-160%", transition: { duration: 0 } },
   hover: { x: "520%", transition: { duration: 0.9, ease: "easeInOut", delay: 0.05 } },
-};
-
-const bounce: Variants = {
-  rest: { y: 0, transition: { duration: 0.25 } },
-  hover: {
-    y: [0, 3, 0],
-    transition: { duration: 0.9, ease: "easeInOut", repeat: Infinity },
-  },
 };
 
 const labelOut: Variants = {
@@ -68,8 +44,9 @@ const labelIn: Variants = {
 };
 
 const sizes = {
-  md: "min-h-12 px-6",
-  sm: "min-h-11 px-4",
+  lg: "min-h-12 px-7 text-sm",
+  md: "min-h-11 px-5 text-sm",
+  sm: "min-h-9 px-4 text-xs",
 } as const;
 
 export function ResumeDownloadButton({
@@ -94,33 +71,24 @@ export function ResumeDownloadButton({
       whileTap="tap"
       variants={button}
       className={cn(
-        // rounded-xl! keeps the corners under the global :focus-visible rule, which sets border-radius.
-        "relative isolate inline-flex items-center justify-center overflow-hidden rounded-xl border border-transparent bg-linear-to-br from-[#142B65] to-[#1E40AF] text-sm font-semibold whitespace-nowrap text-white select-none focus-visible:rounded-xl!",
+        "relative isolate inline-flex items-center justify-center overflow-hidden rounded-full border border-[#DFCA9F]/60 bg-linear-to-r from-[#DFCA9F] via-[#C5A46D] to-[#9A7B45] text-sm font-bold whitespace-nowrap text-[#0B1428] select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A46D]",
         sizes[size],
         className,
       )}
     >
       <m.span
         aria-hidden
-        variants={brightLayer}
-        className="absolute inset-0 -z-10 bg-linear-to-br from-[#1E40AF] via-[#2552CE] to-[#3B82F6]"
-      />
-      <m.span
-        aria-hidden
         variants={shine}
-        className="pointer-events-none absolute inset-y-0 left-0 -z-10 w-1/4 -skew-x-12 bg-white/25 blur-md"
+        className="pointer-events-none absolute inset-y-0 left-0 -z-10 w-1/3 -skew-x-12 bg-white/40 blur-xs"
       />
-      {/* Both labels share one grid cell, so the button keeps the width of the longer one. */}
       <span aria-hidden className="grid overflow-hidden py-0.5">
         <m.span variants={labelOut} className="col-start-1 row-start-1 flex items-center justify-center gap-2">
-          <Download className="size-4" />
+          <Download className="size-4 text-[#0B1428]" />
           Download Resume
         </m.span>
         <m.span variants={labelIn} className="col-start-1 row-start-1 flex items-center justify-center gap-2">
-          <m.span variants={bounce} className="flex">
-            <Download className="size-4" />
-          </m.span>
-          Click on Me!
+          <Sparkles className="size-4 text-[#0B1428]" />
+          Get Full CV (PDF)
         </m.span>
       </span>
     </m.a>

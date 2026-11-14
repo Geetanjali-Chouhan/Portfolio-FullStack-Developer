@@ -2,40 +2,38 @@
 
 import { useEffect, useRef } from "react";
 import {
+  AmbientLight,
   BufferGeometry,
   CanvasTexture,
-  EdgesGeometry,
+  DirectionalLight,
   Float32BufferAttribute,
   Group,
   IcosahedronGeometry,
   LineBasicMaterial,
   LineLoop,
-  LineSegments,
   MathUtils,
+  Mesh,
+  MeshStandardMaterial,
   OctahedronGeometry,
   PerspectiveCamera,
+  PointLight,
   Points,
   PointsMaterial,
   Scene,
   TetrahedronGeometry,
+  TorusGeometry,
   WebGLRenderer,
 } from "three";
 
+const GOLD = 0xc5a46d;
+const GOLD_LIGHT = 0xdfca9f;
 const ROYAL = 0x2563eb;
-const NAVY = 0x172554;
-const SKY = 0x60a5fa;
+const ROYAL_DARK = 0x142b50;
+const NAVY = 0x0b1428;
 
 const CAMERA_Z = 10;
 const FOV = 40;
 
-/** Wireframe of a polyhedron (edges only), with the source geometry released. */
-function wireframe(source: BufferGeometry, color: number, opacity: number) {
-  const edges = new EdgesGeometry(source);
-  source.dispose();
-  return new LineSegments(edges, new LineBasicMaterial({ color, transparent: true, opacity }));
-}
-
-/** A flat circle outline in the XY plane. */
 function orbitRing(radius: number, color: number, opacity: number) {
   const segments = 160;
   const positions: number[] = [];
@@ -54,15 +52,14 @@ function dotTexture() {
   canvas.width = canvas.height = size;
   const ctx = canvas.getContext("2d")!;
   const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  gradient.addColorStop(0, "rgba(255,255,255,1)");
-  gradient.addColorStop(0.55, "rgba(255,255,255,0.9)");
-  gradient.addColorStop(1, "rgba(255,255,255,0)");
+  gradient.addColorStop(0, "rgba(223, 202, 159, 1)");
+  gradient.addColorStop(0.5, "rgba(197, 164, 109, 0.8)");
+  gradient.addColorStop(1, "rgba(197, 164, 109, 0)");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, size, size);
   return new CanvasTexture(canvas);
 }
 
-/** Position of `el` inside `root`, ignoring CSS transforms (so intro animations don't skew it). */
 function boxWithin(el: HTMLElement, root: HTMLElement) {
   let x = 0;
   let y = 0;
@@ -75,13 +72,14 @@ function boxWithin(el: HTMLElement, root: HTMLElement) {
   return { x, y, width: el.offsetWidth, height: el.offsetHeight };
 }
 
-type Satellite = {
-  mesh: LineSegments;
+type Crystal = {
+  mesh: Mesh;
   orbit: number;
   radius: number;
   speed: number;
   phase: number;
-  spin: number;
+  spinX: number;
+  spinY: number;
 };
 
 export default function HeroScene() {
@@ -92,10 +90,9 @@ export default function HeroScene() {
     const root = mount?.parentElement;
     if (!mount || !root) return;
 
-    // Browsers/devices without WebGL just keep the regular (non-3D) hero.
     let renderer: WebGLRenderer;
     try {
-      renderer = new WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power" });
+      renderer = new WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
     } catch {
       return;
     }
@@ -112,14 +109,26 @@ export default function HeroScene() {
     const camera = new PerspectiveCamera(FOV, 1, 0.1, 50);
     camera.position.z = CAMERA_Z;
 
-    // ---- Orbit system around the portrait ---------------------------------
+    // ---- Luxury Lighting ----------------------------------------------------
+    const ambientLight = new AmbientLight(0xffffff, 1.2);
+    scene.add(ambientLight);
+
+    const goldPointLight = new PointLight(GOLD_LIGHT, 3, 20);
+    goldPointLight.position.set(4, 5, 6);
+    scene.add(goldPointLight);
+
+    const blueDirLight = new DirectionalLight(ROYAL, 2.2);
+    blueDirLight.position.set(-5, -3, 5);
+    scene.add(blueDirLight);
+
+    // ---- Orbit system around the portrait -----------------------------------
     const system = new Group();
     scene.add(system);
 
     const orbits: Group[] = [
-      { r: 3.3, color: ROYAL, opacity: 0.4, tilt: [1.1, 0.25, 0.0] as const },
-      { r: 4.1, color: SKY, opacity: 0.55, tilt: [0.45, -0.7, 0.9] as const },
-      { r: 2.6, color: NAVY, opacity: 0.25, tilt: [-0.9, 0.5, 0.3] as const },
+      { r: 3.5, color: GOLD, opacity: 0.45, tilt: [1.05, 0.3, 0.0] as const },
+      { r: 4.3, color: ROYAL, opacity: 0.4, tilt: [0.45, -0.7, 0.8] as const },
+      { r: 2.7, color: GOLD_LIGHT, opacity: 0.3, tilt: [-0.85, 0.45, 0.35] as const },
     ].map(({ r, color, opacity, tilt }) => {
       const group = new Group();
       group.rotation.set(tilt[0], tilt[1], tilt[2]);
@@ -128,41 +137,91 @@ export default function HeroScene() {
       return group;
     });
 
-    const satellites: Satellite[] = [
-      { mesh: wireframe(new IcosahedronGeometry(0.46, 0), ROYAL, 0.95), orbit: 0, radius: 3.3, speed: 0.42, phase: 0.4, spin: 1 },
-      { mesh: wireframe(new OctahedronGeometry(0.4, 0), NAVY, 0.9), orbit: 1, radius: 4.1, speed: -0.3, phase: 2.4, spin: -1.2 },
-      { mesh: wireframe(new TetrahedronGeometry(0.36, 0), ROYAL, 0.9), orbit: 2, radius: 2.6, speed: 0.55, phase: 4.2, spin: 1.5 },
-      { mesh: wireframe(new IcosahedronGeometry(0.26, 0), SKY, 1), orbit: 1, radius: 4.1, speed: -0.3, phase: 5.3, spin: 0.9 },
-    ];
-    satellites.forEach((s) => {
-      orbits[s.orbit].add(s.mesh);
-      // Start on their orbit so a still frame (reduced motion) is already composed.
-      s.mesh.position.set(Math.cos(s.phase) * s.radius, Math.sin(s.phase) * s.radius, 0);
+    // Luxury Material Presets
+    const goldMat = new MeshStandardMaterial({
+      color: GOLD,
+      metalness: 0.85,
+      roughness: 0.2,
+      wireframe: false,
+    });
+    const royalMat = new MeshStandardMaterial({
+      color: ROYAL_DARK,
+      metalness: 0.6,
+      roughness: 0.3,
+    });
+    const glassMat = new MeshStandardMaterial({
+      color: GOLD_LIGHT,
+      metalness: 0.9,
+      roughness: 0.15,
     });
 
-    // ---- Ambient particles --------------------------------------------------
-    const COUNT = 110;
+    const crystals: Crystal[] = [
+      {
+        mesh: new Mesh(new IcosahedronGeometry(0.38, 0), goldMat),
+        orbit: 0,
+        radius: 3.5,
+        speed: 0.35,
+        phase: 0.5,
+        spinX: 1.2,
+        spinY: 0.8,
+      },
+      {
+        mesh: new Mesh(new OctahedronGeometry(0.32, 0), royalMat),
+        orbit: 1,
+        radius: 4.3,
+        speed: -0.28,
+        phase: 2.2,
+        spinX: -0.9,
+        spinY: 1.1,
+      },
+      {
+        mesh: new Mesh(new TetrahedronGeometry(0.28, 0), goldMat),
+        orbit: 2,
+        radius: 2.7,
+        speed: 0.48,
+        phase: 4.1,
+        spinX: 1.4,
+        spinY: -1.0,
+      },
+      {
+        mesh: new Mesh(new TorusGeometry(0.22, 0.07, 16, 32), glassMat),
+        orbit: 1,
+        radius: 4.3,
+        speed: -0.28,
+        phase: 5.2,
+        spinX: 1.1,
+        spinY: 1.3,
+      },
+    ];
+
+    crystals.forEach((c) => {
+      orbits[c.orbit].add(c.mesh);
+      c.mesh.position.set(Math.cos(c.phase) * c.radius, Math.sin(c.phase) * c.radius, 0);
+    });
+
+    // ---- Ambient Golden & Sapphire Particle Dust ---------------------------
+    const COUNT = 140;
     const particlePositions = new Float32Array(COUNT * 3);
     for (let i = 0; i < COUNT; i++) {
-      particlePositions[i * 3] = MathUtils.randFloatSpread(2);
-      particlePositions[i * 3 + 1] = MathUtils.randFloatSpread(2);
-      particlePositions[i * 3 + 2] = MathUtils.randFloatSpread(1.2);
+      particlePositions[i * 3] = MathUtils.randFloatSpread(2.2);
+      particlePositions[i * 3 + 1] = MathUtils.randFloatSpread(2.2);
+      particlePositions[i * 3 + 2] = MathUtils.randFloatSpread(1.4);
     }
     const particleGeometry = new BufferGeometry();
     particleGeometry.setAttribute("position", new Float32BufferAttribute(particlePositions, 3));
     const dots = dotTexture();
     const particleMaterial = new PointsMaterial({
-      color: ROYAL,
-      size: 0.11,
+      color: GOLD_LIGHT,
+      size: 0.12,
       map: dots,
       transparent: true,
-      opacity: 0.45,
+      opacity: 0.55,
       depthWrite: false,
     });
     const particles = new Points(particleGeometry, particleMaterial);
     scene.add(particles);
 
-    // ---- Layout: anchor the orbit system to the portrait frame --------------
+    // ---- Layout & Projection -----------------------------------------------
     let halfW = 1;
     let halfH = 1;
     const layout = () => {
@@ -180,24 +239,21 @@ export default function HeroScene() {
       const photo = root.querySelector<HTMLElement>("[data-hero-photo]");
       if (photo) {
         const box = boxWithin(photo, root);
-        // Side-by-side layout (lg+): hug the portrait closely and lean slightly right so
-        // satellites don't sweep across the intro text. Stacked layout: let the rings
-        // peek out past the photo's edges (the hero clips whatever leaves the viewport).
         const sideBySide = width >= 1024;
         const cx = box.x + box.width / 2 + (sideBySide ? box.width * 0.04 : 0);
         const cy = box.y + box.height / 2;
         system.position.set((cx / width - 0.5) * 2 * halfW, -(cy / height - 0.5) * 2 * halfH, 0);
         const targetDiameterPx = sideBySide
-          ? box.width * 1.32
-          : Math.min(box.width * 1.4, width * 1.2);
-        system.scale.setScalar((targetDiameterPx * unitsPerPx) / (2 * 4.1));
+          ? box.width * 1.36
+          : Math.min(box.width * 1.45, width * 1.25);
+        system.scale.setScalar((targetDiameterPx * unitsPerPx) / (2 * 4.3));
       }
 
       particles.scale.set(halfW, halfH, 1);
-      renderOnce();
+      renderer.render(scene, camera);
     };
 
-    // ---- Animation ------------------------------------------------------------
+    // ---- Animation Loop & Parallax -----------------------------------------
     const pointer = { x: 0, y: 0 };
     const tilt = { x: 0, y: 0 };
     const onPointerMove = (e: PointerEvent) => {
@@ -206,10 +262,6 @@ export default function HeroScene() {
     };
     if (finePointer && !reduceMotion) window.addEventListener("pointermove", onPointerMove, { passive: true });
 
-    function renderOnce() {
-      renderer.render(scene, camera);
-    }
-
     let raf = 0;
     let running = false;
     let visible = true;
@@ -217,28 +269,30 @@ export default function HeroScene() {
     let elapsed = 0;
 
     const frame = (now: number) => {
-      const dt = Math.min((now - last) / 1000, 0.05); // clamp after tab switches
+      const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
       elapsed += dt;
 
-      satellites.forEach((s) => {
-        const angle = s.phase + elapsed * s.speed;
-        s.mesh.position.set(Math.cos(angle) * s.radius, Math.sin(angle) * s.radius, 0);
-        s.mesh.rotation.x += dt * 0.9 * s.spin;
-        s.mesh.rotation.y += dt * 1.1 * s.spin;
+      crystals.forEach((c) => {
+        const angle = c.phase + elapsed * c.speed;
+        c.mesh.position.set(Math.cos(angle) * c.radius, Math.sin(angle) * c.radius, 0);
+        c.mesh.rotation.x += dt * c.spinX;
+        c.mesh.rotation.y += dt * c.spinY;
       });
 
-      // Ease toward the pointer for a soft parallax tilt.
-      tilt.x += (pointer.y * 0.28 - tilt.x) * Math.min(dt * 3, 1);
-      tilt.y += (pointer.x * 0.4 - tilt.y) * Math.min(dt * 3, 1);
+      tilt.x += (pointer.y * 0.3 - tilt.x) * Math.min(dt * 3.5, 1);
+      tilt.y += (pointer.x * 0.45 - tilt.y) * Math.min(dt * 3.5, 1);
       system.rotation.x = tilt.x;
-      system.rotation.y = tilt.y + Math.sin(elapsed * 0.25) * 0.12;
+      system.rotation.y = tilt.y + Math.sin(elapsed * 0.2) * 0.12;
 
-      particles.rotation.z = elapsed * 0.012;
+      particles.rotation.z = elapsed * 0.015;
       particles.position.x = pointer.x * -0.25;
-      particles.position.y = pointer.y * 0.18;
+      particles.position.y = pointer.y * 0.2;
 
-      renderOnce();
+      goldPointLight.position.x = 4 + pointer.x * 2;
+      goldPointLight.position.y = 5 - pointer.y * 2;
+
+      renderer.render(scene, camera);
       raf = requestAnimationFrame(frame);
     };
 
@@ -253,7 +307,6 @@ export default function HeroScene() {
       cancelAnimationFrame(raf);
     };
 
-    // Don't burn battery while the hero is off-screen or the tab is hidden.
     const observer = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
       if (visible) start();
@@ -267,7 +320,7 @@ export default function HeroScene() {
     resizeObserver.observe(mount);
     const photoEl = root.querySelector<HTMLElement>("[data-hero-photo]");
     if (photoEl) resizeObserver.observe(photoEl);
-    document.fonts?.ready.then(layout); // text reflow can move the portrait
+    document.fonts?.ready.then(layout);
 
     layout();
     start();
@@ -279,15 +332,10 @@ export default function HeroScene() {
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("pointermove", onPointerMove);
 
-      scene.traverse((object) => {
-        const disposable = object as unknown as {
-          geometry?: BufferGeometry;
-          material?: { dispose(): void };
-        };
-        disposable.geometry?.dispose();
-        disposable.material?.dispose();
-      });
       dots.dispose();
+      goldMat.dispose();
+      royalMat.dispose();
+      glassMat.dispose();
       renderer.dispose();
       renderer.forceContextLoss();
       renderer.domElement.remove();

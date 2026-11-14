@@ -1,9 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { JetBrains_Mono, Manrope } from "next/font/google";
+import { Cormorant_Garamond, JetBrains_Mono, Manrope } from "next/font/google";
 import { site } from "@/data/site";
 import { MotionProvider } from "@/components/MotionProvider";
 import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
+
+const cormorant = Cormorant_Garamond({
+  variable: "--font-serif",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -56,7 +63,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${manrope.variable} ${jetbrains.variable}`}>
+    <html lang="en" className={`${cormorant.variable} ${manrope.variable} ${jetbrains.variable}`}>
       <body className="min-h-screen bg-surface text-ink">
         {/* Scroll-reveal starts elements at opacity 0; without JavaScript they would stay hidden. */}
         <noscript>

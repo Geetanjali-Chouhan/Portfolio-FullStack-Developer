@@ -3,6 +3,9 @@ import { site } from "@/data/site";
 import { getProfilePhoto } from "@/lib/assets";
 import { getSiteUrl } from "@/lib/site-url";
 import { GsapEffects } from "@/components/effects/GsapEffects";
+import { ScrollProgress } from "@/components/effects/ScrollProgress";
+import { CustomCursor } from "@/components/effects/CustomCursor";
+import { BackToTop } from "@/components/effects/BackToTop";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { About } from "@/components/sections/About";
@@ -13,8 +16,9 @@ import { GitHubActivity, GitHubSkeleton } from "@/components/sections/GitHubActi
 import { Hero } from "@/components/sections/Hero";
 import { Projects } from "@/components/sections/Projects";
 import { Skills } from "@/components/sections/Skills";
+import { Contact } from "@/components/sections/Contact";
 
-// Structured data for search engines. Only facts present on the page.
+// Structured data for search engines.
 const personJsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
@@ -30,21 +34,25 @@ const personJsonLd = {
 export default function Home() {
   return (
     <>
+      <ScrollProgress />
+      <CustomCursor />
       <GsapEffects />
       <Navbar photo={getProfilePhoto()} />
       <main id="main">
         <Hero />
         <About />
         <Skills />
-        <Experience />
         <Projects />
+        <Experience />
         <Education />
         <Achievements />
         <Suspense fallback={<GitHubSkeleton />}>
           <GitHubActivity />
         </Suspense>
+        <Contact />
       </main>
       <Footer />
+      <BackToTop />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd).replace(/</g, "\\u003c") }}
