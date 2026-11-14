@@ -1,0 +1,185 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens — Clean Professional (white + royal blue).
+ * Royal #2563EB · Navy #172554 · Ink #0F172A · Slate #64748B
+ * White #FFFFFF · Off-white #F8FAFC
+ */
+@theme {
+  --color-royal-50: #eff6ff;
+  --color-royal-100: #dbeafe;
+  --color-royal-200: #bfdbfe;
+  --color-royal: #2563eb;
+  --color-royal-700: #1d4ed8;
+  --color-navy: #172554;
+  --color-ink: #0f172a;
+  --color-muted: #64748b;
+  --color-mist: #f8fafc;
+  --color-line: #e2e8f0;
+  /* Semantic tokens: use these in components instead of raw palette values. */
+  --color-surface: #ffffff; /* page / section background */
+  --color-card: #ffffff; /* raised cards, inputs, chips */
+  --color-heading: #172554; /* headings and strong text */
+  --color-accent: #2563eb; /* royal-blue text and icons */
+
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
+
+  --shadow-card:
+    0 1px 2px rgb(15 23 42 / 0.04), 0 10px 30px -14px rgb(15 23 42 / 0.12);
+  --shadow-lift:
+    0 2px 4px rgb(15 23 42 / 0.04), 0 22px 44px -18px rgb(37 99 235 / 0.28);
+
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-float-slow: float 9s ease-in-out infinite reverse;
+  --animate-menu-in: menu-in 180ms ease-out;
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+html {
+  /* The site is light-only; stops the scrollbar and form controls following a dark OS setting. */
+  color-scheme: light;
+  scroll-behavior: smooth;
+  /* Keeps anchored sections clear of the sticky navbar. */
+  scroll-padding-top: 4.5rem;
+}
+
+body {
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-royal-200);
+  color: var(--color-navy);
+}
+
+:root {
+  --shimmer-base: #1e3a8a;
+  --shimmer-band: #3b82f6;
+  --graph-0: #e8eef8;
+  --graph-1: #bfdbfe;
+  --graph-2: #60a5fa;
+  --graph-3: #2563eb;
+  --graph-4: #172554;
+  --lang-0: #2563eb;
+  --lang-1: #172554;
+  --lang-2: #60a5fa;
+  --lang-3: #94a3b8;
+  --lang-4: #1e40af;
+  --lang-5: #93c5fd;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-royal);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Role text: a brighter band sweeps across it, like a moving highlight. */
+.text-shimmer {
+  background-image: linear-gradient(
+    100deg,
+    var(--shimmer-base) 0%,
+    var(--shimmer-base) 38%,
+    var(--shimmer-band) 50%,
+    var(--shimmer-base) 62%,
+    var(--shimmer-base) 100%
+  );
+  background-size: 250% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: text-shimmer 3.2s linear infinite;
+}
+@keyframes text-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .text-shimmer {
+    animation: none;
+    background-position: 0 0;
+  }
+}
+
+/* Subtle engineering-paper texture used behind the hero. */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(148 163 184 / 0.14) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(148 163 184 / 0.14) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 75% 70% at 50% 40%, #000 35%, transparent 100%);
+}
+
+/*
+ * Start states for the GSAP hero entrance (components/effects/HeroIntro.tsx).
+ * Hidden only when motion is allowed, so reduced-motion visitors see everything
+ * immediately. The failsafe animation reveals the content after 5s even if
+ * JavaScript never starts the timeline, so the hero can never stay invisible.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  [data-hero-greet],
+  [data-hero-item],
+  [data-hero-frame],
+  [data-hero-pop],
+  [data-hero-card] {
+    opacity: 0;
+  }
+  [data-hero-word] {
+    transform: translateY(115%);
+  }
+  [data-hero-greet],
+  [data-hero-item],
+  [data-hero-frame],
+  [data-hero-pop],
+  [data-hero-card],
+  [data-hero-word] {
+    animation: hero-failsafe 0.01s 5s forwards;
+  }
+  @keyframes hero-failsafe {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
